@@ -22,7 +22,6 @@ public class Main {
         frame.setLayout(new BorderLayout());
         frame.setLocationRelativeTo(null);
         frame.setResizable(false);
-
         frame.add(conversionGUI, BorderLayout.CENTER);
 
         frame.setVisible(true);
