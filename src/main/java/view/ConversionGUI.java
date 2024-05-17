@@ -17,10 +17,13 @@ import java.util.Map;
 
 public class ConversionGUI extends JLabel {
 
-    public ConversionGUI() throws IOException, URISyntaxException {
+    private final Dotenv dotenv = Dotenv.load();
+    private final String API_KEY = dotenv.get("API_KEY");
+
+    public ConversionGUI() throws URISyntaxException, IOException {
 
         final Font BOLD_FONT = new Font("Font", Font.BOLD, 14);
-        final String[] CURRENCIES = Conversion.getCurrencyCodes().toArray(new String[0]);
+        final String[] CURRENCIES = Conversion.getCurrencyCodes(API_KEY).toArray(new String[0]);
 
         setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
@@ -101,17 +104,16 @@ public class ConversionGUI extends JLabel {
         gbc.gridy = 4;
         add(resultField, gbc);
 
-        JLabel emptyLabel = new JLabel();
         gbc.gridwidth = 2;
         gbc.gridx = 0;
         gbc.gridy = 6;
-        add(emptyLabel, gbc);
+        add(new JLabel(), gbc);
 
-        JLabel emptyLabel2 = new JLabel();
+
         gbc.gridwidth = 2;
         gbc.gridx = 0;
         gbc.gridy = 7;
-        add(emptyLabel2, gbc);
+        add(new JLabel(), gbc);
 
         JLabel previousResultsLabel = new JLabel("Resultados Anteriores: ");
         previousResultsLabel.setForeground(Color.WHITE);
@@ -134,17 +136,15 @@ public class ConversionGUI extends JLabel {
         gbc.gridy = 9;
         add(resultsComboBox, gbc);
 
-        JLabel emptyLabel3 = new JLabel();
         gbc.gridwidth = 2;
         gbc.gridx = 0;
         gbc.gridy = 10;
-        add(emptyLabel3, gbc);
+        add(new JLabel(), gbc);
 
-        JLabel emptyLabel4 = new JLabel();
         gbc.gridwidth = 2;
         gbc.gridx = 0;
         gbc.gridy = 11;
-        add(emptyLabel4, gbc);
+        add(new JLabel(), gbc);
 
         JLabel imageLabel = new JLabel();
         Image img = ImageIO.read(new File("src/main/java/assets/alura_challenges.png"));
@@ -168,6 +168,16 @@ public class ConversionGUI extends JLabel {
             resultField.setText("");
         });
 
+        resultsComboBox.addItemListener(e -> {
+            if (e.getStateChange() == ItemEvent.SELECTED) {
+                String selectedItem = (String) resultsComboBox.getSelectedItem();
+                if (selectedItem != null) {
+                    String date = resultDateMap.get(selectedItem);
+                    resultsComboBox.setToolTipText(date);
+                }
+            }
+        });
+
         convertButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
@@ -180,16 +190,6 @@ public class ConversionGUI extends JLabel {
             }
         });
 
-        resultsComboBox.addItemListener(e -> {
-            if (e.getStateChange() == ItemEvent.SELECTED) {
-                String selectedItem = (String) resultsComboBox.getSelectedItem();
-                if (selectedItem != null) {
-                    String date = resultDateMap.get(selectedItem);
-                    resultsComboBox.setToolTipText(date);
-                }
-            }
-        });
-
         convertButton.addActionListener(e -> {
             String from = (String) fromCurrency.getSelectedItem();
             String to = (String) toCurrency.getSelectedItem();
@@ -197,16 +197,9 @@ public class ConversionGUI extends JLabel {
 
             if (from != null && to != null && !amount.isEmpty()) {
                 try {
-                    Dotenv dotenv = Dotenv.load();
-                    String API_KEY = dotenv.get("API_KEY");
-                    double amountValue = Double.parseDouble(amount);
-                    String url_str = String.format("https://v6.exchangerate-api.com/v6/%s/pair/%s/%s/%s",
-                            API_KEY, from, to, amountValue);
-                    String result = Conversion.getConversionResult(url_str);
-
-                    Date date = new Date();
+                    String result = Conversion.getConversionResult(API_KEY, from, to, amount);
                     SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-                    String data = sdf.format(date);
+                    String data = sdf.format(new Date());
 
                     String resultText = amount + " " + from + " em " + to + " = " + result;
                     resultField.setText(result);
@@ -231,4 +224,3 @@ public class ConversionGUI extends JLabel {
         });
     }
 }
-
