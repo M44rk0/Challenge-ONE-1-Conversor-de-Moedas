@@ -14,6 +14,7 @@ public class Conversion {
     private static JsonObject connect(String url_str) throws IOException, URISyntaxException {
         URL url = new URI(url_str).toURL();
         HttpURLConnection request = (HttpURLConnection) url.openConnection();
+        request.setRequestMethod("GET");
         request.connect();
         JsonElement jsonElement = JsonParser.parseReader(new InputStreamReader(request.getInputStream()));
 

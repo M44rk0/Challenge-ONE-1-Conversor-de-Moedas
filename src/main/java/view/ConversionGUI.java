@@ -109,7 +109,6 @@ public class ConversionGUI extends JLabel {
         gbc.gridy = 6;
         add(new JLabel(), gbc);
 
-
         gbc.gridwidth = 2;
         gbc.gridx = 0;
         gbc.gridy = 7;
